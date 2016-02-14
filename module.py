@@ -24,7 +24,7 @@ class Module():
             return
 
         if self.module_selftesting(name, parser) is False:
-            print "FAILED - Functions/arguments are missing"
+            print " FAILED - Functions/arguments are missing"
             return
 
         print " Added!"
