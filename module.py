@@ -1,21 +1,23 @@
 import importlib
 import inspect
 import sys
+import threading
 
 REQUIRED_FUNCTIONS = ['parameters_test', 'init']
 
-class Module():
+class Module:
     """
     The class containing the characteristics of a module,
     i.e. its name and module.
     """
 
-    def __init__(self, name, parser):
+    def __init__(self, section_name, module_name, parser):
         self.exists = False
-        self.name = name
-        sys.stdout.write(str(name)+ '...')
+        self.section_name = section_name
+        self.parser = parser
+        sys.stdout.write(str(section_name)+ '...')
         try:
-            self.modulefd = importlib.import_module(name)
+            self.modulefd = importlib.import_module(module_name)
         except ImportError:
             print " FAILED - Import did not succeeded"
             return
@@ -23,7 +25,7 @@ class Module():
             print " FAILED - Syntax Error"
             return
 
-        if self.module_selftesting(name, parser) is False:
+        if self.module_selftesting() is False:
             print " FAILED - Functions/arguments are missing"
             return
 
@@ -31,10 +33,10 @@ class Module():
         self.exists = True
 
 
-    def module_selftesting(self, name, parser):
+    def module_selftesting(self):
         """
         Tests that the functions required exists
-        Return true
+        Return true if that's the case
         """
         passed = True
         for function in REQUIRED_FUNCTIONS:
@@ -46,4 +48,21 @@ class Module():
             return False
 
 
-        return self.modulefd.parameters_test(name, parser)
+        return self.modulefd.parameters_test(self.section_name, self.parser)
+
+    def module_launch(self):
+        """
+        Wrapper for the module_launch function
+        """
+
+        t = threading.Thread(target=self._module_launch)
+        t.start()
+
+
+    def _module_launch(self):
+        """
+        Initialize and launch the module
+        """
+        module = self.modulefd.init(self.section_name, self.parser)
+        module.launch()
+
