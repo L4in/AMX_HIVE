@@ -10,13 +10,6 @@ Loader system for AMX HIVE adding an abstraction layer
 between the modules and the system
 """
 
-def __main__():
-    """
-    Main section of AMX HIVE
-    """
-
-    print "AMX HIVE version " + VERSION
-    nexus = Nexus()
 
 class Nexus:
     """
