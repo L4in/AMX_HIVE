@@ -36,7 +36,6 @@ class Nexus:
         # Get the numbers of modules to load
         self.section_list = self.parser.sections()
         self.failed_modules = 0
-        self.active_threads = 0
         self.queue = queue.Queue()
         del self.section_list[0] # Delete the General section
 
@@ -86,22 +85,21 @@ class Nexus:
         """
 
         for module in self.imported_modules:
-            self.active_threads += 1
             module.module_launch()
 
-        self.get_module_messages()
-        self.get_module_messages()
-
+        while threading.active_count() != 1:
+            self.get_module_messages()
 
     def get_module_messages(self):
         """
         Display messages coming from the modules
-        Call is blocking
         """
 
-        section, level, message = self.queue.get()
-
-        print("[" + section + "] - Level " + str(level) + " : " + message)
+        try:
+            section, level, message = self.queue.get(timeout=2)
+            print("[" + section + "] - Level " + str(level) + " : " + message)
+        except queue.Empty:
+            pass
 
 if __name__ == "__main__":
     print("AMX HIVE version " + VERSION)
