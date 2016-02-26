@@ -1,3 +1,5 @@
+#!/usr/bin/python3.4
+
 import configparser
 import sys
 import _thread
