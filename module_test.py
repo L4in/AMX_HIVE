@@ -2,7 +2,7 @@
 Test module for AMX HIVE
 """
 
-import ConfigParser
+import configparser
 import socket
 
 REQUIRED_PARAMETERS = ['sentencetosay', 'port']
@@ -22,7 +22,7 @@ def init(name, parser, queue):
     Test init function
     """
 
-    print "All is going according to plan"
+    print("All is going according to plan")
 
     return Module_test(queue, parser.get(name, 'sentencetosay'), \
             parser.getint(name, 'port'))
@@ -38,8 +38,8 @@ class Module_test:
         self.port = number
         self.queue = queue
 
-        print "Initialized with string " + string + \
-                                                    " and number " + str(number)
+        print("Initialized with string " + string + \
+                                                    " and number " + str(number))
 
 
     def launch(self):
@@ -47,15 +47,15 @@ class Module_test:
         Main function for the module
         """
 
-        print "Consider thyself launched"
+        print("Consider thyself launched")
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('', self.port))
         s.listen(5)
         c, addr = s.accept()
-        print str(addr) + " is connected"
-        c.send("Correctly launched\n")
+        print(str(addr) + " is connected")
+        c.send(b"Correctly launched\n")
         self.queue.put(("AMX_HIVE TEST MODULE", 1, \
                         "The connection have been successfuly established\n"))
         c.close()

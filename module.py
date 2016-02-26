@@ -20,17 +20,17 @@ class Module:
         try:
             self.modulefd = importlib.import_module(module_name)
         except ImportError:
-            print " FAILED - Import did not succeeded"
+            print(" FAILED - Import did not succeeded")
             return
         except SyntaxError:
-            print " FAILED - Syntax Error"
+            print(" FAILED - Syntax Error")
             return
 
         if self.module_selftesting() is False:
-            print " FAILED - Functions/arguments are missing"
+            print(" FAILED - Functions/arguments are missing")
             return
 
-        print " Added!"
+        print(" Added!")
         self.exists = True
 
 
