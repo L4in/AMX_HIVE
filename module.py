@@ -11,10 +11,11 @@ class Module:
     i.e. its name and module.
     """
 
-    def __init__(self, section_name, module_name, parser):
+    def __init__(self, section_name, module_name, parser, queue):
         self.exists = False
         self.section_name = section_name
         self.parser = parser
+        self.queue = queue
         sys.stdout.write(str(section_name)+ '...')
         try:
             self.modulefd = importlib.import_module(module_name)
@@ -63,6 +64,6 @@ class Module:
         """
         Initialize and launch the module
         """
-        module = self.modulefd.init(self.section_name, self.parser)
+        module = self.modulefd.init(self.section_name, self.parser, self.queue)
         module.launch()
 

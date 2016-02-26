@@ -17,14 +17,14 @@ def parameters_test(name, parser):
 
     return True
 
-def init(name, parser):
+def init(name, parser, queue):
     """
     Test init function
     """
 
     print "All is going according to plan"
 
-    return Module_test(parser.get(name, 'sentencetosay'), \
+    return Module_test(queue, parser.get(name, 'sentencetosay'), \
             parser.getint(name, 'port'))
 
 class Module_test:
@@ -32,10 +32,11 @@ class Module_test:
     Class containing all the methods for the module to operate
     """
 
-    def __init__(self, string, number):
+    def __init__(self, queue, string, number):
 
         self.string = string
         self.port = number
+        self.queue = queue
 
         print "Initialized with string " + string + \
                                                     " and number " + str(number)
@@ -55,5 +56,7 @@ class Module_test:
         c, addr = s.accept()
         print str(addr) + " is connected"
         c.send("Correctly launched\n")
+        self.queue.put(("AMX_HIVE TEST MODULE", 1, \
+                        "The connection have been successfuly established\n"))
         c.close()
         s.close()

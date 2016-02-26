@@ -1,6 +1,7 @@
 import ConfigParser
 import sys
 import thread
+import Queue
 from module import Module
 
 VERSION = "0.0.1"
@@ -33,6 +34,8 @@ class Nexus:
         # Get the numbers of modules to load
         self.section_list = self.parser.sections()
         self.failed_modules = 0
+        self.active_threads = 0
+        self.queue = Queue.Queue()
         del self.section_list[0] # Delete the General section
 
 
@@ -49,7 +52,7 @@ class Nexus:
         print "The following modules will be loaded:"
         for bundle in self.module_list:
             section_name, module_name = bundle
-            module = Module(section_name, module_name, self.parser)
+            module = Module(section_name, module_name, self.parser, self.queue)
             if module.exists is True:
                 self.imported_modules.append(module)
             else:
@@ -77,12 +80,26 @@ class Nexus:
     def module_launch(self):
         """
         Create threads and launch the modules into them
+        Waits for queue messages
         """
 
         for module in self.imported_modules:
+            self.active_threads += 1
             module.module_launch()
 
+        self.get_module_messages()
+        self.get_module_messages()
 
+
+    def get_module_messages(self):
+        """
+        Display messages coming from the modules
+        Call is blocking
+        """
+
+        section, level, message = self.queue.get()
+
+        print "[" + section + "] - Level " + str(level) + " : " + message
 
 if __name__ == "__main__":
     print "AMX HIVE version " + VERSION
