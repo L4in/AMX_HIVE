@@ -2,7 +2,7 @@
 
 import configparser
 import sys
-import _thread
+import threading
 import queue
 from module import Module
 
