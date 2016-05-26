@@ -87,10 +87,15 @@ class Nexus:
         for module in self.imported_modules:
             module.module_launch()
 
-        while threading.active_count() != 1:
-            self.get_module_messages()
+    def message_loop(self):
+        """
+        Loops into message reception
+        """
 
-    def get_module_messages(self):
+        while threading.active_count() != 1:
+            self._get_module_messages()
+
+    def _get_module_messages(self):
         """
         Display messages coming from the modules
         """
@@ -108,3 +113,4 @@ if __name__ == "__main__":
         print("Too much modules loaded!")
     else:
         nexus.module_launch()
+        nexus.message_loop()
