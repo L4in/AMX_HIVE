@@ -113,4 +113,8 @@ if __name__ == "__main__":
         print("Too much modules loaded!")
     else:
         nexus.module_launch()
-        nexus.message_loop()
+        try:
+            nexus.message_loop()
+        except KeyboardInterrupt:
+            print("\nExitting via keyboard.")
+            exit()

@@ -16,6 +16,7 @@ class Module:
         self.section_name = section_name
         self.parser = parser
         self.queue = queue
+        self.t = None
         sys.stdout.write(str(section_name)+ '...')
         try:
             self.modulefd = importlib.import_module(module_name)
@@ -56,8 +57,9 @@ class Module:
         Wrapper for the module_launch function
         """
 
-        t = threading.Thread(target=self._module_launch)
-        t.start()
+        self.t = threading.Thread(target=self._module_launch)
+        self.t.daemon = True
+        self.t.start()
 
 
     def _module_launch(self):
