@@ -4,6 +4,7 @@ import configparser
 import sys
 import threading
 import queue
+import amx_comm
 from module import Module
 
 VERSION = "0.0.1"
@@ -93,18 +94,7 @@ class Nexus:
         """
 
         while threading.active_count() != 1:
-            self._get_module_messages()
-
-    def _get_module_messages(self):
-        """
-        Display messages coming from the modules
-        """
-
-        try:
-            section, level, message = self.queue.get(timeout=2)
-            print("[" + section + "] - Level " + str(level) + " : " + message)
-        except queue.Empty:
-            pass
+            amx_comm.get_message(self)
 
 if __name__ == "__main__":
     print("AMX HIVE version " + VERSION)

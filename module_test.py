@@ -4,6 +4,7 @@ Test module for AMX HIVE
 
 import configparser
 import socket
+import amx_comm
 
 REQUIRED_PARAMETERS = ['sentencetosay', 'port']
 def parameters_test(name, parser):
@@ -24,7 +25,7 @@ def init(name, parser, queue):
 
     print("All is going according to plan")
 
-    return Module_test(queue, parser.get(name, 'sentencetosay'), \
+    return Module_test(name, queue, parser.get(name, 'sentencetosay'), \
             parser.getint(name, 'port'))
 
 class Module_test:
@@ -32,8 +33,9 @@ class Module_test:
     Class containing all the methods for the module to operate
     """
 
-    def __init__(self, queue, string, number):
+    def __init__(self, name, queue, string, number):
 
+        self.name = name
         self.string = string
         self.port = number
         self.queue = queue
@@ -56,7 +58,8 @@ class Module_test:
         c, addr = s.accept()
         print(str(addr) + " is connected")
         c.send(b"Correctly launched\n")
-        self.queue.put(("AMX_HIVE TEST MODULE", 1, \
-                        "The connection have been successfuly established\n"))
+        message = amx_comm.create_message(\
+                            addr[0], self.port, self.name, 1, "Conn established")
+        message.send(self.queue)
         c.close()
         s.close()
