@@ -37,7 +37,26 @@ def get_message(nexus):
     """
     try:
         attacker_ip, attacked_port, module_name, level, message = nexus.queue.get(timeout=2)
+        print(attacker_ip)
         print("[" + module_name + "] - Level " + str(level) + " from " + \
-                  attacker_ip + " on port " + attacked_port " : "+ message)
+                  attacker_ip + " on port " + str(attacked_port)  + " : " + message)
     except queue.Empty:
         return
+    #Create SSL context
+    context = ssl.create_default_context()
+    # Todo: add cert file on the config file rather than hardcoded
+    context.load_verify_locations("/home/lain/amx_hive.pem")
+    # For the moment
+    context.check_hostname = False
+    connection = context.wrap_socket( \
+                    socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    connection.connect((nexus.server_adress, nexus.server_port))
+    try:
+         connection.send(bytes(attacker_ip + "|" + \
+                               str(attacked_port) + "|" + \
+                               module_name + "|" + \
+                               str(level) + "|" + \
+                               message, \
+                                    "utf-8"))
+    finally:
+        connection.close()

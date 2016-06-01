@@ -27,10 +27,18 @@ class Nexus:
         # Create the parser and initalize it
         self.parser = configparser.RawConfigParser()
         self.parser.read("config.cfg")
-        self.stop_on_module_error = \
+        try:
+            self.stop_on_module_error = \
                          self.parser.getboolean('General', 'StopOnModuleError')
-        self.max_module_number = \
+            self.max_module_number = \
                          self.parser.getint('General', 'MaxModuleNumber')
+            self.server_adress = \
+                        self.parser.get('General', 'ServerAdress')
+            self.server_port = \
+                        self.parser.getint('General', 'ServerPort')
+        except configparser.NoOptionerror:
+            print("Option missing.")
+            exit()
 
         print("Max number of modules is " + str(self.max_module_number))
 
