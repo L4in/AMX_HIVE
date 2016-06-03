@@ -3,6 +3,7 @@ AMX Communication module
 Handles the internal messaging system
 """
 
+import time
 import queue
 import ssl
 import socket
@@ -25,10 +26,11 @@ class Message():
 
 def create_message(attacker_ip, attacked_port, module_name, level, module_message):
     """
-    Packs the message contents into a message
+    Gets the time then packs the message contents into a message
     """
 
-    bundle = (attacker_ip, attacked_port, module_name, level, module_message)
+    epoch = int(time.time())
+    bundle = (epoch, attacker_ip, attacked_port, module_name, level, module_message)
     return Message(bundle)
 
 def get_message(nexus):
@@ -36,10 +38,12 @@ def get_message(nexus):
     Display messages coming from the modules
     """
     try:
-        attacker_ip, attacked_port, module_name, level, message = nexus.queue.get(timeout=2)
+        epoch, attacker_ip, attacked_port, module_name, level, message = \
+                                                     nexus.queue.get(timeout=2)
         print(attacker_ip)
         print("[" + module_name + "] - Level " + str(level) + " from " + \
-                  attacker_ip + " on port " + str(attacked_port)  + " : " + message)
+                  attacker_ip + " on port " + str(attacked_port)  + \
+                  " at " + str(epoch) + " : " + message)
     except queue.Empty:
         return
     #Create SSL context
@@ -52,7 +56,8 @@ def get_message(nexus):
                     socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     connection.connect((nexus.server_adress, nexus.server_port))
     try:
-         connection.send(bytes(attacker_ip + "|" + \
+         connection.send(bytes(str(epoch) + "|" + \
+                               attacker_ip + "|" + \
                                str(attacked_port) + "|" + \
                                module_name + "|" + \
                                str(level) + "|" + \
