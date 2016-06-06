@@ -7,6 +7,8 @@ import time
 import queue
 import ssl
 import socket
+from os.path import exists
+import serialization
 
 class Message():
     """
@@ -28,24 +30,15 @@ def create_message(attacker_ip, attacked_port, module_name, level, module_messag
     """
     Gets the time then packs the message contents into a message
     """
-
     epoch = int(time.time())
     bundle = (epoch, attacker_ip, attacked_port, module_name, level, module_message)
     return Message(bundle)
 
-def get_message(nexus):
+
+def open_ssl(nexus):
     """
-    Display messages coming from the modules
+    Creates and initialize the ssl socket for sending data
     """
-    try:
-        epoch, attacker_ip, attacked_port, module_name, level, message = \
-                                                     nexus.queue.get(timeout=2)
-        print(attacker_ip)
-        print("[" + module_name + "] - Level " + str(level) + " from " + \
-                  attacker_ip + " on port " + str(attacked_port)  + \
-                  " at " + str(epoch) + " : " + message)
-    except queue.Empty:
-        return
     #Create SSL context
     context = ssl.create_default_context()
     # Todo: add cert file on the config file rather than hardcoded
@@ -53,15 +46,91 @@ def get_message(nexus):
     # For the moment
     context.check_hostname = False
     connection = context.wrap_socket( \
-                    socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+                             socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     connection.connect((nexus.server_adress, nexus.server_port))
+
+    return connection
+
+def send_line_to_server(connection, line):
+    """
+    Send line to the server
+    """
+    connection.send(bytes(line,  "utf-8"))
+
+
+def send_bundle_to_server(connection, bundle):
+    """
+    Send bundle to the server
+    """
+    epoch, attacker_ip, attacked_port, module_name, level, message = bundle
+    connection.send(bytes(  str(epoch) + "|" + \
+                            attacker_ip + "|" + \
+                            str(attacked_port) + "|" + \
+                            module_name + "|" + \
+                            str(level) + "|" + \
+                            message.strip("\n"), \
+                                "utf-8"))
+
+
+def get_message(nexus):
+    """
+    Display messages coming from the modules
+    """
     try:
-         connection.send(bytes(str(epoch) + "|" + \
-                               attacker_ip + "|" + \
-                               str(attacked_port) + "|" + \
-                               module_name + "|" + \
-                               str(level) + "|" + \
-                               message, \
-                                    "utf-8"))
+        bundle = nexus.queue.get(timeout=2)
+    except queue.Empty:
+        #Nothing to do
+        return
+
+    try:
+        connection = open_ssl(nexus)
+    except ConnectionRefusedError:
+        print("Connection to server refused - serializing the data")
+        serialization.store_report(bundle)
+        return
+
+    if exists(".unsent_reports"):
+        print("Attenpting to send data backlog")
+        # Sending the previous reports first
+        reports = serialization.get_report_line()
+        #There's still lines in the file
+        generation_continues = True
+        #There's no network error
+        socket_error = False
+        while(generation_continues and not socket_error):
+
+            try:
+                send_line_to_server(connection, next(reports).strip("\n"))
+            except StopIteration:
+                generation_continues = False
+                print("No more data in file while outputting")
+                serialization.remove_reports_file()
+
+            except (socket.error, ssl.SSLError):
+                socket_error = True
+
+        if (generation_continues):
+            with open("./.usent_reports.swp", "w") as w:
+                while(generation_continues):
+                    try:
+                        w.write(reports.next().strip('\n'))
+                    except StopIteration:
+                        generation_continues = False
+                        print("No more data in file while serializing")
+
+            serialization.replace_report_file()
+
+
+    epoch, attacker_ip, attacked_port, module_name, level, message = bundle
+    print(attacker_ip)
+    print("[" + module_name + "] - Level " + str(level) + " from " + \
+                  attacker_ip + " on port " + str(attacked_port)  + \
+                  " at " + str(epoch) + " : " + message)
+
+    try:
+        send_bundle_to_server(connection, bundle)
+    except (socket.error, ssl.SSLError):
+        print("An error occured on the transport layer - serializing")
+        serialization.store_report(bundle)
     finally:
         connection.close()
