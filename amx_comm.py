@@ -30,7 +30,7 @@ def create_message(attacker_ip, attacked_port, module_name, level, module_messag
     """
     Gets the time then packs the message contents into a message
     """
-    epoch = int(time.time())
+    epoch = int(time.time()*1000)
     bundle = (epoch, attacker_ip, attacked_port, module_name, level, module_message)
     return Message(bundle)
 
