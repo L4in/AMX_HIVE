@@ -53,7 +53,7 @@ class Module_test:
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('', self.port))
+        s.bind(('0.0.0.0', self.port))
         s.listen(5)
         c, addr = s.accept()
         print(str(addr) + " is connected")
