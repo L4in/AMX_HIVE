@@ -36,6 +36,8 @@ class Nexus:
                         self.parser.get('General', 'ServerAdress')
             self.server_port = \
                         self.parser.getint('General', 'ServerPort')
+            self.sslcert = \
+                    self.parser.get('General', 'SSLCert')
         except configparser.NoOptionerror:
             print("Option missing.")
             exit()

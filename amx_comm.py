@@ -42,7 +42,7 @@ def open_ssl(nexus):
     #Create SSL context
     context = ssl.create_default_context()
     # Todo: add cert file on the config file rather than hardcoded
-    context.load_verify_locations("/home/lain/amx_hive.pem")
+    context.load_verify_locations(nexus.sslcert)
     # For the moment
     context.check_hostname = False
     connection = context.wrap_socket( \
