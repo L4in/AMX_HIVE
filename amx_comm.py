@@ -122,7 +122,6 @@ def get_message(nexus):
 
 
     epoch, attacker_ip, attacked_port, module_name, level, message = bundle
-    print(attacker_ip)
     print("[" + module_name + "] - Level " + str(level) + " from " + \
                   attacker_ip + " on port " + str(attacked_port)  + \
                   " at " + str(epoch) + " : " + message)
