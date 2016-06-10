@@ -3,6 +3,7 @@
 import asyncio
 import ssl
 import configparser
+from neo4j_comm import Session
 from report import Report
 
 class Connection_handler(asyncio.Protocol):
@@ -29,7 +30,8 @@ class Connection_handler(asyncio.Protocol):
 
         data_list = data.decode("utf-8").split("|")
         print(data_list)
-        report = Report(self.client_adress, data_list)
+        report = Report(self.client_adress[0], data_list)
+        session.add_report_to_database(report)
 
     def connection_lost(self, exc):
         """
@@ -44,9 +46,16 @@ try:
     port = parser.getint('General', 'ServerPort')
     adress = parser.get('General', 'ServerAdress')
     ssl_certificate = parser.get('General', 'SSLCert')
+    neo4j_adress = parser.get('General', 'Neo4jAdress')
+    neo4j_username = parser.get('General', 'Neo4jUsername')
+    neo4j_password_file = parser.get('General', 'Neo4jPasswordfile')
+    neo4j_password = ''
 except configparser.NoSectionError:
     print("Section [General] missing.")
     exit()
+
+with open(neo4j_password_file, 'r') as passwd_file:
+    neo4j_password = passwd_file.read().strip('\n')
 
 #Create SSL context
 context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -61,8 +70,7 @@ socket_coroutine = loop.create_server(Connection_handler, adress, port, \
 
 #Add the coroutine to the loop
 server = loop.run_until_complete(socket_coroutine)
-
-
+session = Session(neo4j_adress, neo4j_username, neo4j_password)
 
 try:
     #Run the loop forever
@@ -74,3 +82,4 @@ finally:
     server.close()
     #Shut down the loop
     loop.close()
+    session.close_session()
