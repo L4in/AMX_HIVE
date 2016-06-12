@@ -55,6 +55,9 @@ if __name__ == "__main__":
     except configparser.NoSectionError:
         print("Section [General] missing.")
         exit()
+    except configparser.NoOptionError as err :
+        print(err)
+        exit()
 
     with open(neo4j_password_file, 'r') as passwd_file:
         neo4j_password = passwd_file.read().strip('\n')
