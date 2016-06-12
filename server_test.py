@@ -39,47 +39,49 @@ class Connection_handler(asyncio.Protocol):
         """
         print("Connection to {} closed.".format(self.client_adress))
 
-#Create the parser for the configuration file
-parser = configparser.RawConfigParser()
-parser.read("server_config.cfg")
-try:
-    port = parser.getint('General', 'ServerPort')
-    adress = parser.get('General', 'ServerAdress')
-    ssl_certificate = parser.get('General', 'SSLCert')
-    neo4j_adress = parser.get('General', 'Neo4jAdress')
-    neo4j_username = parser.get('General', 'Neo4jUsername')
-    neo4j_password_file = parser.get('General', 'Neo4jPasswordfile')
-    neo4j_password = ''
-except configparser.NoSectionError:
-    print("Section [General] missing.")
-    exit()
+if __name__ == "__main__":
 
-with open(neo4j_password_file, 'r') as passwd_file:
-    neo4j_password = passwd_file.read().strip('\n')
+    #Create the parser for the configuration file
+    parser = configparser.RawConfigParser()
+    parser.read("server_config.cfg")
+    try:
+        port = parser.getint('General', 'ServerPort')
+        adress = parser.get('General', 'ServerAdress')
+        ssl_certificate = parser.get('General', 'SSLCert')
+        neo4j_adress = parser.get('General', 'Neo4jAdress')
+        neo4j_username = parser.get('General', 'Neo4jUsername')
+        neo4j_password_file = parser.get('General', 'Neo4jPasswordfile')
+        neo4j_password = ''
+    except configparser.NoSectionError:
+        print("Section [General] missing.")
+        exit()
 
-#Create SSL context
-context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-context.load_cert_chain(certfile=ssl_certificate)
+    with open(neo4j_password_file, 'r') as passwd_file:
+        neo4j_password = passwd_file.read().strip('\n')
 
-#Create event loop
-loop = asyncio.get_event_loop()
+    #Create SSL context
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.load_cert_chain(certfile=ssl_certificate)
 
-#Create coroutine
-socket_coroutine = loop.create_server(Connection_handler, adress, port, \
+    #Create event loop
+    loop = asyncio.get_event_loop()
+
+    #Create coroutine
+    socket_coroutine = loop.create_server(Connection_handler, adress, port, \
                                     ssl=context)
 
-#Add the coroutine to the loop
-server = loop.run_until_complete(socket_coroutine)
-session = Session(neo4j_adress, neo4j_username, neo4j_password)
+    #Add the coroutine to the loop
+    server = loop.run_until_complete(socket_coroutine)
+    session = Session(neo4j_adress, neo4j_username, neo4j_password)
 
-try:
-    #Run the loop forever
-    loop.run_forever()
-except KeyboardInterrupt:
-    print("\nExitting via keyboard.")
-finally:
-    #Stop the server
-    server.close()
-    #Shut down the loop
-    loop.close()
-    session.close_session()
+    try:
+        #Run the loop forever
+        loop.run_forever()
+    except KeyboardInterrupt:
+        print("\nExitting via keyboard.")
+    finally:
+        #Stop the server
+        server.close()
+        #Shut down the loop
+        loop.close()
+        session.close_session()
