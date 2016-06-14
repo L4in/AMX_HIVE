@@ -55,11 +55,13 @@ class Module_test:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('0.0.0.0', self.port))
         s.listen(5)
-        c, addr = s.accept()
-        print(str(addr) + " is connected")
-        c.send(b"Correctly launched\n")
-        message = amx_comm.create_message(\
-                            addr[0], self.port, self.name, 1, "Conn established")
-        message.send(self.queue)
-        c.close()
+
+        while True:
+                c, addr = s.accept()
+                print(str(addr) + " is connected")
+                message = amx_comm.create_message(\
+                                   addr[0], self.port, self.name, 1, "Conn established")
+                message.send(self.queue)
+                c.close()
+
         s.close()
