@@ -1,8 +1,12 @@
+#!/usr/bin/python3.4
+
 from neo4j_comm import Session
 import configparser
+import sys
 
 if __name__ == "__main__":
 
+    sys.stdout.write("Reading configuration...")
     parser = configparser.RawConfigParser()
     parser.read("server_config.cfg")
     try:
@@ -16,12 +20,15 @@ if __name__ == "__main__":
         print(err)
         exit()
 
+    print(" OK.")
 
     with open(neo4j_password_file, 'r') as passwd_file:
         neo4j_password = passwd_file.read().strip('\n')
 
 
+    sys.stdout.write("Connecting to neo4j server...")
     neo4j_handler = Session(neo4j_adress, neo4j_username, neo4j_password)
+    print(" OK.")
     string = """
 MATCH (a:NNode)-[LAUNCHED]->(n:Attack)-[ON]->(h:NNode)
 RETURN count(DISTINCT a) as attackers, count(n) as attacks, count(DISTINCT h) \
