@@ -8,7 +8,7 @@ import queue
 import ssl
 import socket
 from os.path import exists
-import serialization
+from amx_toolbox import serialization
 
 class Message():
     """

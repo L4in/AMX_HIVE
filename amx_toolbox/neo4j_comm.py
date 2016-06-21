@@ -1,6 +1,6 @@
 from neo4j.v1 import GraphDatabase, basic_auth
 from neo4j.v1.exceptions import ProtocolError
-from report import Report
+from amx_toolbox.report import Report
 
 class Session():
     """

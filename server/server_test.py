@@ -3,8 +3,10 @@
 import asyncio
 import ssl
 import configparser
-from neo4j_comm import Session
-from report import Report
+import sys
+sys.path.append("..")
+from amx_toolbox.neo4j_comm import Session
+from amx_toolbox.report import Report
 
 class Connection_handler(asyncio.Protocol):
     """

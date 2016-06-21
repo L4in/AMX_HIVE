@@ -4,8 +4,9 @@ import configparser
 import sys
 import threading
 import queue
-import amx_comm
-from module import Module
+sys.path.append("..")
+import amx_toolbox.amx_comm as amx_comm
+from amx_toolbox.module import Module
 
 VERSION = "0.0.1"
 

@@ -4,7 +4,7 @@ Test module for AMX HIVE
 
 import configparser
 import socket
-import amx_comm
+from amx_toolbox import amx_comm
 
 REQUIRED_PARAMETERS = ['sentencetosay', 'port']
 def parameters_test(name, parser):
