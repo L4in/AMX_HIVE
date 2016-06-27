@@ -12,7 +12,6 @@ class Session():
         Creates the session to the database
         """
 
-        #TODO Remove hardcoded password and implement a
         driver = GraphDatabase.driver(adress, \
                                    auth=basic_auth(user, password))
 
