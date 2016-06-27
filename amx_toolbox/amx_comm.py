@@ -35,6 +35,32 @@ def create_message(attacker_ip, attacked_port, module_name, level, module_messag
     return Message(bundle)
 
 
+def test_connection_to_server(nexus):
+    """
+    Tests the connection to the server
+    Gives a console-based feedback
+    """
+
+    print("[NETWORK] Probing server connection...")
+    try:
+        connection = open_ssl(nexus)
+    except ConnectionRefusedError:
+        print("[NETWORK] Can't reach the server - is the adress correct or is the server online?")
+        if nexus.stop_on_module_error:
+            exit()
+        else:
+            print("Do you want to continue? [y/N]")
+            choice = input().lower().rstrip()
+            if choice == 'y':
+                pass
+            else:
+                print("Aborting...")
+                exit()
+    else:
+        print("[NETWORK] Server connected.")
+        connection.close()
+
+
 def open_ssl(nexus):
     """
     Creates and initialize the ssl socket for sending data

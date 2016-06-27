@@ -77,6 +77,8 @@ class Nexus:
                                     str(self.failed_modules) + " failed to load")
 
 
+        amx_comm.test_connection_to_server(self)
+
     def check_module_number(self):
         """
         Check if there is not too much modules loaded
