@@ -20,6 +20,7 @@ class Session():
         except ProtocolError:
             print("Cannot connect to neo4j. Aborting.")
             exit()
+        print("Connected to neo4j.")
 
     def add_report_to_database(self, report):
         """
@@ -40,5 +41,7 @@ message:'{}', level:{} }})-[:ON]->(h)""".format(report.attacker_ip, \
         """
         Close the communication to the database
         """
-
-        self.session.close()
+        try:
+            self.session.close()
+        except ProtocolError:
+            print("The session was already closed!")
