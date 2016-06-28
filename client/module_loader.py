@@ -8,7 +8,7 @@ sys.path.append("..")
 import amx_toolbox.amx_comm as amx_comm
 from amx_toolbox.module import Module
 
-VERSION = "0.0.1"
+VERSION = "1.0.1"
 
 """
 Loader system for AMX HIVE adding an abstraction layer
