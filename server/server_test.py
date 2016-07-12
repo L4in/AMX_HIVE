@@ -32,8 +32,9 @@ class Connection_handler(asyncio.Protocol):
 
         data_list = data.decode("utf-8").split("|")
         print(data_list)
-        report = Report(self.client_adress[0], data_list)
-        session.add_report_to_database(report)
+        if len(data_list) == 6:
+            report = Report(self.client_adress[0], data_list)
+            session.add_report_to_database(report)
 
     def connection_lost(self, exc):
         """
