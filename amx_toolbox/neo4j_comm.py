@@ -1,7 +1,7 @@
 from neo4j.v1 import GraphDatabase, basic_auth
 from neo4j.v1.exceptions import ProtocolError
 from amx_toolbox.report import Report
-
+from neo4j.v1.exceptions import CypherError
 class Session():
     """
     Contains the database connection data
@@ -35,7 +35,14 @@ message:'{}', level:{} }})-[:ON]->(h)""".format(report.attacker_ip, \
                 report.honeypot_ip, report.epoch, report.module_name, \
                 report.attacked_port, report.module_message, report.level)
 
-        self.session.run(string)
+        result = self.session.run(string)
+        try:
+            result.consume()
+        except ProtocolError:
+            # TODO Serialize data
+            print("Connection lost. Attempting to reconnect...")
+            self.session = self.driver.session()
+
 
     def close_session(self):
         """
