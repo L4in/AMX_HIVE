@@ -12,11 +12,11 @@ class Session():
         Creates the session to the database
         """
 
-        driver = GraphDatabase.driver(adress, \
+        self.driver = GraphDatabase.driver(adress, \
                                    auth=basic_auth(user, password))
 
         try:
-            self.session = driver.session()
+            self.session = self.driver.session()
         except ProtocolError:
             print("Cannot connect to neo4j. Aborting.")
             exit()
