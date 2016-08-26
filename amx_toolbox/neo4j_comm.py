@@ -30,10 +30,15 @@ class Session():
         string = """
 MERGE (a:NNode {{adress:'{}'}})
 MERGE (h:NNode {{adress:'{}'}})
-CREATE (a)-[:LAUNCHED]->(strike:Attack{{time:{}, module:'{}', port:{},\
-message:'{}', level:{} }})-[:ON]->(h)""".format(report.attacker_ip, \
-                report.honeypot_ip, report.epoch, report.module_name, \
-                report.attacked_port, report.module_message, report.level)
+MERGE (mname:Module {{name:'{}'}})
+MERGE (level:Level {{value:{}}})
+MERGE (port:Port {{value:{}}})
+CREATE (a)-[:LAUNCHED]->(strike:Attack{{time:{}, message:'{}'}})-[:ON]->(h)
+CREATE (strike)-[:DETECTED_BY]->(mname)
+CREATE (strike)-[:ON_PORT]->(port)
+CREATE (strike)-[:SEVERITY]->(level)""".format(report.attacker_ip, \
+                report.honeypot_ip, report.module_name, report.level, \
+                report.attacked_port, report.epoch, report.module_message)
 
         result = self.session.run(string)
         try:
