@@ -47,6 +47,7 @@ class Module_test:
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.settimeout(5)
         s.bind(('0.0.0.0', self.port))
         s.listen(5)
         string = ""
@@ -55,11 +56,15 @@ class Module_test:
                 print(str(addr) + " is connected")
                 try:
                     string = c.recv(4096).decode()
-                except socket.error:
+                except (socket.error, socket.timeout) as e:
+                    print("Connection closed")
                     message = amx_comm.create_message(\
                           addr[0], self.port, self.name, 1, "Conn established")
                     message.send(self.queue)
                     continue
+                if len(string) == 0:
+                    message = amx_comm.create_message(\
+                          addr[0], self.port, self.name, 1, "Conn established")
                 matches = re.search('(?<=(GET\s)).*', string)
 
                 if matches != None:
@@ -68,7 +73,7 @@ class Module_test:
                     message = amx_comm.create_message(\
                             addr[0], self.port, self.name, 2, \
                             "GET request: {}".format(getmess))
-                    message.send(self.queue)
+                message.send(self.queue)
 
                 c.close()
 
